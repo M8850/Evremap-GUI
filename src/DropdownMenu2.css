@@ -1,0 +1,52 @@
+/* DropdownMenu.css */
+.checkbox-label {
+  position: relative;
+  padding-left: 35px; /* Adjust the padding to change the checkbox size */
+  cursor: pointer;
+  display: inline-block;
+}
+
+.checkbox-label input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px; /* Adjust the height to change the checkbox size */
+  width: 25px; /* Adjust the width to change the checkbox size */
+  background-color: #eee;
+  border: 1px solid #ccc;
+}
+
+.checkbox-label:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+.checkbox-label input:checked ~ .checkmark {
+  background-color: #2196F3;
+  border: 1px solid #2196F3;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkbox-label input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.checkbox-label .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
