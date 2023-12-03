@@ -9,6 +9,7 @@ cd your-repo
 npm install --- or whatever install command your frontend needs
 npm run tauri dev
  ```
-![image](https://github.com/M8850/Evremap-GUI/assets/143623420/c0077629-14c1-4caf-84ef-8230ad38063f)
+![image](https://github.com/M8850/Evremap-GUI/assets/143623420/52f4cdc8-202b-4b63-a85c-f8c46b4f3635)
+
 
 
