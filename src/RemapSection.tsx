@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { invoke } from '@tauri-apps/api/tauri';
-//import TOMLPreview from './TOMLPreview';
 
 interface RemapEntry {
   input: string[];
@@ -15,7 +14,9 @@ interface RemapSectionProps {
 }
 
 const RemapSection: React.FC<RemapSectionProps> = (props) => {
+  const { remapEntries, setRemapEntries } = props;
   const [keys, setKeys] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchKeys = async () => {
@@ -32,39 +33,43 @@ const RemapSection: React.FC<RemapSectionProps> = (props) => {
   }, []);
 
   const handleAddRemapEntry = () => {
-    props.setRemapEntries([...props.remapEntries, { input: [], output: [] }]);
+    setRemapEntries([...remapEntries, { input: [], output: [] }]);
   };
 
   const handleInputChange = (index: number, type: 'input' | 'output', selectedOptions: any[]) => {
-    const updatedEntries = [...props.remapEntries];
+    const updatedEntries = [...remapEntries];
     updatedEntries[index][type] = selectedOptions.map((option) => option.value);
-    props.setRemapEntries(updatedEntries);
+    setRemapEntries(updatedEntries);
+    setError(null); // Clear error when making changes
   };
 
   const handleMoveUp = (index: number) => {
     if (index > 0) {
-      const updatedEntries = [...props.remapEntries];
-      const temp = updatedEntries[index - 1];
-      updatedEntries[index - 1] = updatedEntries[index];
-      updatedEntries[index] = temp;
-      props.setRemapEntries(updatedEntries);
+      const updatedEntries = [...remapEntries];
+      const temp = updatedEntries[index];
+      updatedEntries[index] = updatedEntries[index - 1];
+      updatedEntries[index - 1] = temp;
+      setRemapEntries(updatedEntries);
+      setError(null); // Clear error when making changes
     }
   };
 
   const handleMoveDown = (index: number) => {
-    if (index < props.remapEntries.length - 1) {
-      const updatedEntries = [...props.remapEntries];
-      const temp = updatedEntries[index + 1];
-      updatedEntries[index + 1] = updatedEntries[index];
-      updatedEntries[index] = temp;
-      props.setRemapEntries(updatedEntries);
+    if (index < remapEntries.length - 1) {
+      const updatedEntries = [...remapEntries];
+      const temp = updatedEntries[index];
+      updatedEntries[index] = updatedEntries[index + 1];
+      updatedEntries[index + 1] = temp;
+      setRemapEntries(updatedEntries);
+      setError(null); // Clear error when making changes
     }
   };
 
-  const handleRemove = (index: number) => {
-    const updatedEntries = [...props.remapEntries];
+  const handleRemoveEntry = (index: number) => {
+    const updatedEntries = [...remapEntries];
     updatedEntries.splice(index, 1);
-    props.setRemapEntries(updatedEntries);
+    setRemapEntries(updatedEntries);
+    setError(null); // Clear error when making changes
   };
 
   const customStyles = {
@@ -86,54 +91,45 @@ const RemapSection: React.FC<RemapSectionProps> = (props) => {
 
   return (
     <div>
-    <h3>[[remap]]</h3>
-    <div style={{ display: 'flex', marginBottom: '10px' }}>
-      <div style={{ marginRight: '20px', width: '260px' }}>
-        <label style={{ display: 'inline-block', marginRight: '5px' }}>Input:</label>
-      </div>
-      <div style={{ marginRight: '20px', width: '260px' }}>
-        <label style={{ display: 'inline-block', marginRight: '5px' }}>Output:</label>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ width: '80px' }}></div>
-        <div style={{ width: '80px' }}></div>
-        <div style={{ width: '80px' }}></div>
+      <div>
+        <h3>[[remap]]</h3>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <div style={{ display: 'flex', marginBottom: '10px' }}>
+          <div style={{ marginRight: '20px', width: '260px' }}>
+            <label style={{ display: 'inline-block', marginRight: '5px' }}>Input:</label>
+          </div>
+          <div style={{ marginRight: '20px', width: '260px' }}>
+            <label style={{ display: 'inline-block', marginRight: '5px' }}>Output:</label>
+          </div>
+        </div>
+        {remapEntries && remapEntries.map((entry, index) => (
+          <div key={index} style={{ display: 'flex', marginBottom: '10px' }}>
+            <div style={{ marginRight: '20px', width: '260px' }}>
+              <Select
+                isMulti
+                options={keys.map((key) => ({ label: key, value: key }))}
+                value={entry.input && entry.input.map((value) => ({ label: value, value }))}
+                onChange={(selectedOptions) => handleInputChange(index, 'input', selectedOptions)}
+                styles={customStyles}
+              />
+            </div>
+            <div style={{ marginRight: '20px', width: '260px' }}>
+              <Select
+                isMulti
+                options={keys.map((key) => ({ label: key, value: key }))}
+                value={entry.output && entry.output.map((value) => ({ label: value, value }))}
+                onChange={(selectedOptions) => handleInputChange(index, 'output', selectedOptions)}
+                styles={customStyles}
+              />
+            </div>
+            <button onClick={() => handleMoveUp(index)}>Move Up</button>
+            <button onClick={() => handleMoveDown(index)}>Move Down</button>
+            <button onClick={() => handleRemoveEntry(index)}>Remove</button>
+          </div>
+        ))}
+        <button onClick={handleAddRemapEntry}>Add [[remap]]</button>
       </div>
     </div>
-    {props.remapEntries.map((entry, index) => (
-      <div key={index} style={{ display: 'flex', marginBottom: '10px' }}>
-        <div style={{ marginRight: '20px', width: '260px' }}>
-          <Select
-            isMulti
-            options={keys.map((key) => ({ label: key, value: key }))}
-            value={entry.input.map((value) => ({ label: value, value }))}
-            onChange={(selectedOptions) => handleInputChange(index, 'input', selectedOptions)}
-            styles={customStyles}
-          />
-        </div>
-        <div style={{ marginRight: '20px', width: '260px' }}>
-          <Select
-            isMulti
-            options={keys.map((key) => ({ label: key, value: key }))}
-            value={entry.output.map((value) => ({ label: value, value }))}
-            onChange={(selectedOptions) => handleInputChange(index, 'output', selectedOptions)}
-            styles={customStyles}
-          />
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <button style={{ marginRight: '5px' }} onClick={() => handleMoveUp(index)}>
-            Move Up
-          </button>
-          <button style={{ marginRight: '5px' }} onClick={() => handleMoveDown(index)}>
-            Move Down
-          </button>
-          <button onClick={() => handleRemove(index)}>Remove</button>
-        </div>
-      </div>
-    ))}
-    <button onClick={handleAddRemapEntry}>Add [[remap]]</button>
-    
-  </div>
   );
 };
 

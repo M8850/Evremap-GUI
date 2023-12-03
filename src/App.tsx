@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
-import DropdownMenu2 from "./DropdownMenu2";
-import EvremapGUIComp from "./EvremapGUIComp3";
+import DeviceNamePhys from "./DeviceNamePhys";
+import DualroleSection from "./DualroleSection";
 import RemapSection from "./RemapSection";
 import TOMLPreview from "./TOMLPreview";
 
@@ -20,38 +20,10 @@ interface RemapEntry {
 }
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-  const [deviceName, setDeviceName] = useState<string>("");
+  const [deviceName, setDeviceName] = useState<string | null>(null);
   const [selectedPhys, setSelectedPhys] = useState<string | null>(null);
-  const [entries, setEntries] = useState({
-    dualRoleEntries: [{ input: [], hold: [], tap: [] }],
-    remapEntries: [{ input: [], output: [] }],
-  });
-
-  async function greet() {
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
-/*<p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-
-      <p>{greetMsg}</p>
-      */
+  const [dualRoleEntries, setDualRoleEntries] = useState<DualRoleEntry[]>([{ input: [], hold: [], tap: [] }]);
+  const [remapEntries, setRemapEntries] = useState<RemapEntry[]>([{ input: [], output: [] }]);
 
   return (
     <div className="container">
@@ -73,30 +45,30 @@ function App() {
       </div>
 
       
-      <DropdownMenu2
+      <DeviceNamePhys
         setDeviceName={(deviceName) => setDeviceName(deviceName)}
         setSelectedPhys={(selectedPhys) => setSelectedPhys(selectedPhys)}
       />
 
-      <EvremapGUIComp
-        dualRoleEntries={entries.dualRoleEntries}
-        setDualRoleEntries={(newEntries) =>
-          setEntries({ ...entries, dualRoleEntries: newEntries })
-        }
+      <DualroleSection
+        dualRoleEntries={dualRoleEntries}
+        setDualRoleEntries={setDualRoleEntries}
       />
 
       <RemapSection
-        remapEntries={entries.remapEntries}
-        setRemapEntries={(newEntries) =>
-          setEntries({ ...entries, remapEntries: newEntries })
-        }
+        remapEntries={remapEntries}
+        setRemapEntries={setRemapEntries}
       />
 
       <TOMLPreview
-        dualRoleEntries={entries.dualRoleEntries}
-        remapEntries={entries.remapEntries}
+        dualRoleEntries={dualRoleEntries}
+        remapEntries={remapEntries}
         deviceName={deviceName}
         selectedPhys={selectedPhys}
+        setDualRoleEntries={setDualRoleEntries}
+        setRemapEntries={setRemapEntries}
+        setDeviceName={(deviceName) => setDeviceName(deviceName)}
+        setSelectedPhys={(selectedPhys) => setSelectedPhys(selectedPhys)}
       />
     </div>
   );
